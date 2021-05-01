@@ -45,4 +45,7 @@ dependencies {
     //Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:27.1.0')
     implementation 'com.google.firebase:firebase-analytics'
+
+    //FireBase Realtime Database
+    implementation 'com.google.firebase:firebase-database'
 }
