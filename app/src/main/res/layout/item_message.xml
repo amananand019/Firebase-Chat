@@ -19,7 +19,8 @@
         android:layout_weight="0"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="@string/name"
-        android:paddingTop="10dp"/>
+        android:paddingTop="10dp"
+        android:layout_marginStart="5dp"/>
 
     <TextView
         android:id="@+id/messageTextView"
@@ -27,7 +28,8 @@
         android:layout_height="wrap_content"
         android:layout_weight="0"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/message"/>
+        android:text="@string/message"
+        android:layout_marginStart="20dp"/>
 
 
 </LinearLayout>
