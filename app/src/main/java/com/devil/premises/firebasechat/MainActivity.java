@@ -2,6 +2,7 @@ package com.devil.premises.firebasechat;
 
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -19,6 +20,7 @@ import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -40,19 +42,19 @@ public class MainActivity extends AppCompatActivity {
     private Button mSendButton;
 
     private String mUsername;
-//
-//    private FirebaseDatabase myDatabase;
-//    private DatabaseReference myRef;
 
+    private FirebaseDatabase myDatabase;
+    private DatabaseReference myMessageRef;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        setContentView(R.layout.activity_main);
         mUsername = ANONYMOUS;
-//
-//        myDatabase = FirebaseDatabase.getInstance();
-//        myRef = myDatabase.getReference().child("message");
+
+        //firebase initialize
+        myDatabase = FirebaseDatabase.getInstance();
+        myMessageRef = myDatabase.getReference().child("message");
 
         // Initialize references to views
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -103,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // TODO: Send messages on click
+
+                FriendlyMessage friendlyMessage = new FriendlyMessage(mMessageEditText.getText().toString(), mUsername, null);
+                myMessageRef.push().setValue(friendlyMessage);
 
                 // Clear input box
                 mMessageEditText.setText("");

@@ -44,8 +44,10 @@ dependencies {
 
     //Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:27.1.0')
-    implementation 'com.google.firebase:firebase-analytics'
 
     //FireBase Realtime Database
     implementation 'com.google.firebase:firebase-database'
 }
+
+//for using fireabase we have to add plugin for google services
+apply plugin: 'com.google.gms.google-services'
