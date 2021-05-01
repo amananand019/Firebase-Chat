@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "921473184729",
+    "project_id": "friendly-chat-app-29071",
+    "storage_bucket": "friendly-chat-app-29071.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:921473184729:android:3a423c9e73226d32e79fc8",
+        "android_client_info": {
+          "package_name": "com.devil.premises.firebasechat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "921473184729-29h4pv9bo33mqbep8vr1kmdb47aaf7tm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAENsk4lnlFfYEiJXT0xBVxJww3TA9f5gU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "921473184729-29h4pv9bo33mqbep8vr1kmdb47aaf7tm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
