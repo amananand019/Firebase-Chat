@@ -24,6 +24,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -33,6 +35,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: Fire an intent to show an image picker
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/jpeg");
                 intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
@@ -130,41 +132,34 @@ public class MainActivity extends AppCompatActivity {
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
         // Send button sends a message and clears the EditText
-        mSendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO: Send messages on click
+        mSendButton.setOnClickListener(view -> {
 
-                FriendlyMessage friendlyMessage = new FriendlyMessage(mMessageEditText.getText().toString(), mUsername, null);
-                myMessageRef.push().setValue(friendlyMessage);
+            FriendlyMessage friendlyMessage = new FriendlyMessage(mMessageEditText.getText().toString(), mUsername, null);
+            myMessageRef.push().setValue(friendlyMessage);
 
-                // Clear input box
-                mMessageEditText.setText("");
-            }
+            // Clear input box
+            mMessageEditText.setText("");
         });
 
-        mAuthStateListener  = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if(user != null){
-                    //user is signed in
-                    onSignDataInitialize(user.getDisplayName());
-                }else {
-                    //user is signed out
-                    onSignOutCleanUp();
-                    List<AuthUI.IdpConfig> providers = Arrays.asList(
-                            new AuthUI.IdpConfig.EmailBuilder().build(),
-                            new AuthUI.IdpConfig.GoogleBuilder().build());
+        mAuthStateListener  = firebaseAuth -> {
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+            if(user != null){
+                //user is signed in
+                onSignDataInitialize(user.getDisplayName());
+            }else {
+                //user is signed out
+                onSignOutCleanUp();
+                List<AuthUI.IdpConfig> providers = Arrays.asList(
+                        new AuthUI.IdpConfig.EmailBuilder().build(),
+                        new AuthUI.IdpConfig.GoogleBuilder().build());
 
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setIsSmartLockEnabled(false)
-                                    .setAvailableProviders(providers)
-                                    .build()
-                    , RC_SIGN_IN);
-                }
+                startActivityForResult(
+                        AuthUI.getInstance()
+                                .createSignInIntentBuilder()
+                                .setIsSmartLockEnabled(false)
+                                .setAvailableProviders(providers)
+                                .build()
+                , RC_SIGN_IN);
             }
         };
     }
@@ -239,15 +234,31 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == RC_SIGN_IN){
-            if(resultCode == RESULT_OK){
-                Toast.makeText(this, "Signed in!", Toast.LENGTH_SHORT).show();
-            }else if(resultCode == RESULT_CANCELED){
-                Toast.makeText(this, "Sign in Canceled", Toast.LENGTH_SHORT).show();
-                finish();
-            }else if(requestCode == RC_PHOTO_PICKER && resultCode == RESULT_OK){
-                Uri selectedImageUri = data.getData();
-                StorageReference photoRef = mChatPhotosStorageReference.child(selectedImageUri.getLastPathSegment());
+                if(resultCode == RESULT_OK){
+                    Toast.makeText(this, "Signed in!", Toast.LENGTH_SHORT).show();
+                }else if(resultCode == RESULT_CANCELED){
+                    Toast.makeText(this, "Sign in Canceled", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
             }
+        else if(requestCode == RC_PHOTO_PICKER && resultCode == RESULT_OK){
+            Uri selectedImageUri = data.getData();
+            StorageReference photoRef = mChatPhotosStorageReference.child(selectedImageUri.getLastPathSegment());
+            photoRef.putFile(selectedImageUri).addOnSuccessListener(this, taskSnapshot -> {
+                if(taskSnapshot.getMetadata() != null){
+                    if(taskSnapshot.getMetadata().getReference() != null){
+                        Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                        result.addOnSuccessListener(uri -> {
+                            String imageUrl = uri.toString();
+                            FriendlyMessage friendlyMessage = new FriendlyMessage(null, mUsername, imageUrl);
+                            myMessageRef.push().setValue(friendlyMessage);
+                        });
+                    }
+                }
+//                String download = taskSnapshot.getMetadata().getReference().getDownloadUrl().toString();
+//                FriendlyMessage friendlyMessage = new FriendlyMessage(null, mUsername, download);
+//                myMessageRef.push().setValue(friendlyMessage);
+            });
         }
     }
 
